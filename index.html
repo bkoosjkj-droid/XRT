@@ -1,0 +1,211 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NHỊ MOD V1</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:18px;background:#080610;color:white;font-family:Arial,sans-serif}
+#lockScreen{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at top,#281342,#080610 70%)}
+.lock-box{width:100%;max-width:420px;padding:25px;text-align:center;background:linear-gradient(145deg,#241735,#151020);border:1px solid #a34cff;border-radius:18px;box-shadow:0 0 30px #8b35e888}
+.lock-logo{font-size:30px;font-weight:bold}
+.lock-logo span{color:#c17aff}
+.lock-sub{color:#c2a9dd;font-size:11px;letter-spacing:3px;margin:8px 0 20px}
+.lock-box p{color:#c0b2d0;font-size:13px;line-height:1.6}
+.lock-btn{display:block;width:100%;padding:14px;margin-top:13px;border:0;border-radius:10px;background:linear-gradient(100deg,#713be0,#bd54e9);color:white;font-weight:bold;font-size:14px;cursor:pointer}
+.youtube-btn{background:linear-gradient(100deg,#d71919,#ff5555)}
+#accessArea{display:none}
+.key-display{display:none;margin-top:18px;padding:15px 8px;background:#0c0913;border:1px dashed #bd54e9;border-radius:10px;color:#d9a4ff;font-size:22px;font-weight:bold;letter-spacing:3px;overflow-wrap:anywhere}
+#keyInput{width:100%;padding:14px;margin-top:15px;border:1px solid #7043a5;border-radius:10px;background:#0d0915;color:white;text-align:center;font-size:17px;font-weight:bold;outline:none;text-transform:uppercase}
+#message{min-height:18px;color:#ff7777;font-size:12px;margin-top:12px}
+#website{display:none}
+.container{max-width:550px;margin:auto}
+header{text-align:center;padding:25px 0}
+.avatar{width:125px;height:125px;margin:auto;border:3px solid #c078ff;border-radius:50%;overflow:hidden;box-shadow:0 0 25px #9b4dff}
+.avatar img{width:100%;height:100%;object-fit:cover}
+h1{font-size:36px;margin:15px 0 5px}
+h1 span{color:#c17aff}
+.sub{font-size:11px;color:#c2a9dd;letter-spacing:3px}
+.status{display:inline-block;margin-top:12px;padding:7px 14px;background:#153d29;color:#65ffab;border-radius:20px;font-size:11px}
+nav{display:flex;gap:8px;margin:22px 0}
+nav button{flex:1;padding:13px 5px;border:1px solid #7043a5;border-radius:10px;background:#1b1329;color:white;font-weight:bold}
+nav button.active{background:#803de1}
+.panel{background:linear-gradient(145deg,#241735,#151020);border:1px solid #613a83;border-radius:16px;padding:19px;margin:14px 0}
+h2{font-size:18px}
+p{font-size:13px;color:#c0b2d0;line-height:1.6}
+.download{display:block;text-align:center;padding:13px;margin-top:15px;background:linear-gradient(100deg,#713be0,#bd54e9);border-radius:10px;color:white;font-weight:bold;text-decoration:none;border:0;width:100%;cursor:pointer}
+.page{display:none}
+.page.active{display:block;animation:show .3s}
+@keyframes show{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+footer{text-align:center;color:#887a98;font-size:11px;margin:30px 0}
+</style>
+</head>
+<body>
+
+<div id="lockScreen">
+ <div class="lock-box">
+  <div class="lock-logo">XRT VÀ<span> NHỊ MOD</span></div>
+  <div class="lock-sub">XRT FFH4X  V1.0</div>
+  <p>Truy cập kênh YouTube Bkoosjkj Vip viet. Khi quay lại website, bạn có thể nhận KEY.</p>
+  <button id="youtubeBtn" class="lock-btn youtube-btn" onclick="openYoutube()">▶ XEM VIDEO YOUTUBE</button>
+  <div id="accessArea">
+   <p>Chào mừng bạn quay lại NHỊ MOD!</p>
+   <button class="lock-btn" onclick="generateKey()">🔑 NHẬN KEY NGẪU NHIÊN</button>
+   <div id="keyDisplay" class="key-display"></div>
+   <input id="keyInput" type="text" maxlength="11" placeholder="NHẬP KEY 11 KÝ TỰ" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
+   <button class="lock-btn" onclick="confirmKey()">✓ XÁC NHẬN</button>
+   <div id="message"></div>
+  </div>
+ </div>
+</div>
+
+<div id="website">
+ <div class="container">
+  <header>
+   <div class="avatar">
+    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABUOEBIQDRUSERIYFhUZHzQiHx0dH0AuMCY0TENQT0tDSUhUXnlmVFlyWkhJaY9qcnyAh4iHUWWUn5ODnXmEh4L/2wBDARYYGB8cHz4iIj6CVklWgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoL/wAARCACAAIADASIAAhEBAxEB/8QAGgAAAgMBAQAAAAAAAAAAAAAABAUAAwYBAv/EAD8QAAIBAwEFBAYIAwgDAAAAAAECAwAEESEFEjFBURNhgZEUIkJxobEGIzJSwdHh8GJyshUkJTRjc6LxM0OC/8QAFwEBAQEBAAAAAAAAAAAAAAAAAQACA//EAB0RAQEBAQACAwEAAAAAAAAAAAABEQIhMRJBYVH/2gAMAwEAAhEDEQA/AMdUqVKklSuqrOwVQSTwApna7PA1lG83TkPzrU5tQCG3lm1VdOp0FGxbNHtkt7tBTHdWMhTlnPBVGTVq28zIWdlt4xx5nz4V0nEgArZQx6lFA766DbLwZNOgzXmSS27Xct4muXz9tzkeFXGyuXj35ysSfdA18q1s+koae1zull8VqthZucDsyT0GPlRf9nRLGXlXcUDnxPv6VbFFGsYKRCMHu1NWW+0UyWsJ+xIVPfqKFkhePUjI6jUU9kTiKCdDE+E9rkRWbxFpXUo2S3WTJT1HHFTQbKVYqwwRyrlZhcqVKlCSuqpdgqjJOgFcphb2xjszOwwzkBe4E/jTJqGWNiIl6uftH8BRaI8zmGDQLo8mOHcO+iUgIgfd0cKcdxxQ8dw3oojsBuIAA87D2uijma7+J4gWySWmzEIOsh1xn1j3k1Ulnd7X3ZJcw23IEcfcOfvNF7J2TE9xv3CNLIDkhtd0/wAR693KtBLGkERLHGBknoKxaWau7R7SHsrCMK5IHaNqxzyFGW6KLVDvB90anOdeetWtHG0El5d5CMpCrwwp/E0DJ2iWUccCdl6Qd2OLHBebH306Fcv17BgMxg7sY++3X3CvfZeqNc8jXm37VwzFMGLEEY/iPPwGK7tS4TZ8AiBG+Bx6fqa1oUsoYkKQSKoni34yudeR6GubFl9JE2RhhqNeVXoC0e8eOSPjTLsRcyiaMN9lxzoWRBKCr+q68+n6UVODFNIoOPaHz/Oq5AJCGU64zjurNRaylWKsMEcRXKMuI99M+2o8x+lB1xsxpfZQekXKofs8W91Pr5AtiWOgDL4DNCbCg+reUjVjuj3Cm20Yv8OPe6D/AJCuvMzkPWBdxGSctHZIM44GX9O7nXLKN77aBW3RYdwYeRQMQr91erHryqbVnHpkFkoIjjUyyEdAD+Xxo+1xs3YCMMLPP6x7idfgPlRaTezWCKMRQKqqvAD8e+lpU7U2u65JtYPVbB0c9PP4DvquSQ7N2SCM+k3OiD2h08hr7zVd2XsbGDZNp/m7j7bZ+zni376VhLJmg2jtAhpFWxtTlsn/AMrjkOoFe7KZb7alxesmILVOzQHkcZb8qp2qi2dvbWFrEGWIb7sRk6agZ6lsVbYQNafRN94/WSQtIxPMtUgcNzb2UCTTAGQRmUIebuc58B86stNhm/Vrm/G9JLrhvZH5/wDVeNk2A2ltCW6lXNvGQiAjRsDA8sfGn/onY+tZkRf6fsHw5e8fGm3Axu2fo9c7Lia5tHLwKQzAHVe891X2xWS3U51Ysw861olS4t5Vdd1gpWSNuI0+VZN9myrs2ykSYo/Z72Bw15GtcVUu2imJgeo59x/WgY29WI9PVNG30cgaNGbeYAkt50FJHuKrLnIA3h8jTfYeZMxyq68znxoedQr5X7LDK0Xcgdm2nDBFDuN6FuqN8D+/jWeoY0myIty0hGPZz560w2pHjZw75Y/6hVVgmI4x0UfKjNqqP7PQf60f9Qrd/iV7V2Y7ySzqRvOoAZtAdCpXPiCKIu4Gnv7GBhiJIzJIp5AY0P760dtWeG2sJWmUMGG6qYzvnkAKy9k00fpNs77ruhVhn7KKMkDzPnXP2RKXa3u1ptoz5FpZqezzz6HxOPKlq7WDXi3vZSzZbelwuncoPTh8aPs7U3MEVmRlWVpZh1wPVHmc+NNlh9H2ItvZOwZApUp9s65I99CUw3UV9bdrCS5EbyOSPax+GmndVu1JHT6PRwwAmWeNY1A/l1+Aqv6P7JktbW5adSss+Rqdcd499E2cZkvRHKD/AHaEKAepyM+Q+NCX2cltZWNvCSEAjB4HHvJ99GoyuoZGDKeBByDSraEG03tkWzvIbaNYxvllORjvpJZ/SKezvlhvBBPG2C88CnmOOOZ8Kk0W11KWkk8RxKq7v8wOmPjp31VMkVzZxLG6qsWF3m4Yx+lWXUsd0IFjcPEcSll1BHs/HXwpXegKFgRiFZt5hyAGprXMFJduGI7ReCNiVhUbzDmcHPhQDn1ZBgEFd3x4+Ve43Z9ovKBv9qc7vUHOlVyFTHIIzhVy+nfoBWwomDLDqQc1WmpYffj+Wv4VZM4aJAhznTFeUXdmjU8QSprP2Wv2cd6KM9VHyova3+QT/fj/AKhSvYcvaWMJzqBunw0pjtVv7lH/AL8f9QrVRytpALgz9mDLyYknHuzw8KytxC0Ud9fjJLXMkPuU/rpWwpRte1KWbpEQe1nDhSOBOc/HWuUpCBGs9kOqHM8u7bqert9o+Gf+NNHsC04IbEYx440x++tDbSjEMFooG8LWRZ5D/CDgn4k+Bpvn1cjXTTHOpOIGCgOQW5kDArvfXhZVOA2UYjO62hr0rK4O6QwzjQ5oQCa7LoyOhCvooBwSOvlVVvs+yiYXShcIMn1Tknlnv/Oj7nsI1M0yk400UsfIUmmuL++u1trW3a2iA3jI4wUHXHXpn/pQjZtnDZwyJGGwzlmydAenh5Us2q+RMysQTiGM45njj98qa3JS0t0ihGABuoDzJ7/iaQ3hY3ARCxjtV3i33nPTvrcBYiQxy3CRdoUVQAZRht4EZ4VT2TvAJlk9biw0FE3bKVgjjO9LJvSSYHNjoPLFDTSaqJIhGw4HGfhzrQCuiM2VyFyR+tdQYmTXOGzk+6pkgHOMk8MVwAqrseS589PxrJNPo1caSQE6g7w/Gnm0nzZRj/Wj/qFY2xuDa3SSjgD6w6jnWovZQ9nEVOQZUIPiKebsR7NthbVSJbS6LjgEjLBvcRpQ+y7uW/na9uR2QXKww81HAse/l51XtHbHZRvbWpLzbuXK/wDrHUnkaAtrkQ7K3nbEkzYOOXLA9wrPxI7bF5u7NdlP1t426g6Rjn+P/wBUR9Gr0z2no0h+shGBnmnLy4eVZOe8nvZJJQMbiaAcEQcKu2bftZ3sUwyQujKOLKeP5+FWeE3zHCkhSxA4DnQ63tqE9WRR/CBrr3UE30j2WqA+kMSfZETZ+VL32tFLdGfZolWXIDRSJgTZ6DOc888OtZxD9p7UuYUVbOykkeRt1GcboJ7gdTVtnPbwr2U11E91nEgB9o8hQi3jCaSS5QC4wVCuxQRr0XQ5zzIoYvZ2ls87pAm/nSNcH3daZAv2rcRw4kODIxxCo4fzfvl76SXE91DYdnLKib3q+ogDEE6ktx66V6mjknmW5mhZiBmNCwAQd/fQtzI7s0s+H3DiNBwzzrpIlatvXQbd3VQYCgcP3xqq8kd2EcY1PPNehlI8sfXc8fnVKyA3B67jY95pCSW5SJyTlgqt7s1RcndgQA6vg+A/fwpl9oyHQA6a9BSadw8h3dEGijurPXiGK6Z2N2zwLasclXVk92dRSyuglSCDgjUEVzlylupezECRRoqCWVd/AxkZyflSuZzHPPBuM6xs4DIucBlONe7NU2O0XvYkti27NvDLcNOZHfWnszHBEsUShVHKuv7AR7GW0ttj30d7J2csyYG8DkjGmOuvSkE6zwyoSjKwwd06EZFbTaA7AiWGKN0kbdeNhpnkR0PKs/d2kU9zJLGzQpld9G1wCcHj0OPA1nErgt7u7VVSLcychnYAD8ae2NtBYZeVxLcPoXxx7gOnzrOwytsraRiu1YdmeAJweh0IOK0Vpt3ZwhIt41hlI0aPDHybBNWoVLY399EQJvQ4z94bzEfh86TPAiujSsjxwnCMCT2h6gHgOgHGjLu+vdo/UJdWkSHijb0bN5/hQ3o0UEhN/fwwsvTLN4Z08hVP1PN3dYQIrbrPr3qKXDEmHxiNdFFebl7aa5ka3ysJIyznVgPzNUTXBciOMFVI493dWtDsj77FydOA186CdyJQc8hwq9nOg9kVUcRgSOMuR6q/iazSKv7hUiEEfEj1u4dKW10ksSSck8TXKz1dpSpUqVlOqSpBUkEcCKf7M29jEd2e4SfnWfqUy2JvZJFurR0VgwddCDz5UtuHju4FnGBK2YZQO8aZ8QKzlreXFq2YZCo5rxB8KMg2nGI5VeIq0jh95TkAg54V0nUoNtq2o2ls2G4QDt1QH+YY1FZY6HBrSWm0rcQKnbKN0nGdNM99ebi3sbrLeoGPtI1V530iBJpUGFdgOmdPKiItoSrgMAwHAfpw+FWz7MVcmO4Qj+I4oNod04aSMe5s/Ks51CNtdpLBvt2ETuxJyy6j3V6s4VuAzmTdRT62uv6CgPql+858hXl5WYbvBfujQVTrPYGXk9uso9GUEqMb3L9aBJLEknJPM1ypWbdKVKlShP/Z" alt="Ảnh đại diện NHỊ MOD">
+   </div>
+   <h1>XRT ĐÚT NHỊ<span>FFH4X MOD</span></h1>
+   <div class="sub">XRT VÀ NHỊ MOD </div>
+   <div class="status">● SYSTEM ONLINE</div>
+  </header>
+
+  <nav>
+   <button class="active" onclick="showPage('home',this)">TRANG CHỦ</button>
+   <button onclick="showPage('files',this)">TẢI FILE</button>
+   <button onclick="showPage('info',this)">THÔNG TIN</button>
+  </nav>
+
+  <section id="home" class="page active">
+   <div class="panel">
+    <h2>🔥 CHÀO MỪNG BẠN</h2>
+    <p>Chào mừng đến với NHỊ MOD. Trung tâm tải xuống ứng dụng và dữ liệu.</p>
+    <button class="download" onclick="showPage('files',document.querySelectorAll('nav button')[1])">📦 KHÁM PHÁ FILE</button>
+   </div>
+   <div class="panel"><h2>📱 APK CENTER</h2><p>Kho ứng dụng Android.</p></div>
+   <div class="panel"><h2>🗜️ ZIP CENTER</h2><p>Kho dữ liệu tải xuống.</p></div>
+  </section>
+
+  <section id="files" class="page">
+   <h2>📥 KHO TẢI XUỐNG</h2>
+
+   <div class="panel">
+    <h2>1. XRT AIMBOT ⚠️</h2>
+    <p>Tệp cài đặt Android · APK</p>
+    <a class="download" href="XRT%20AIMBOT_1.1.apk" download>⬇ TẢI FILE 1</a>
+   </div>
+
+   <div class="panel">
+    <h2>2. XRT AIMBOT ⚠️</h2>
+    <p>Tệp cài đặt Android · APK</p>
+    <a class="download" href="XRT%20AIMBOT_8.0.apk" download>⬇ TẢI FILE 2</a>
+   </div>
+
+   <div class="panel">
+    <h2>3. XRT PROXY VIP ⚠️</h2>
+    <p>Tệp cài đặt Android · APK</p>
+    <a class="download" href="XRT%20PROXY%20VIP.apk" download>⬇ TẢI FILE 3</a>
+   </div>
+
+   <div class="panel">
+    <h2>🗜️ FFH4X</h2>
+    <p>XRT BKoosjkj VIP VIET.</p>
+   </div>
+  </section>
+
+  <section id="info" class="page">
+   <div class="panel">
+    <h2>ℹ️ THÔNG TIN WED MOD XRT</h2>
+    <p>Tên: XRT MOD FIE</p>
+    <p>Phiên bản: V1</p>
+    <p>Giao diện: XRT ĐÚT MOD FFH FFMX</p>
+    <p>Trạng thái: XRT ĐƯỢC CHATGPT AI</p>
+   </div>
+  </section>
+
+  <footer>✦ NHỊ MOD · DOWNLOAD CENTER ✦<br><br>© 2026 NHỊ MOD</footer>
+ </div>
+</div>
+
+<script>
+let currentKey = "";
+
+function openYoutube(){
+  try {
+    sessionStorage.setItem("nhi_youtube_clicked","yes");
+  } catch(e) {}
+
+  const tab = window.open("https://www.youtube.com/@BkooSjkj","_blank");
+
+  if(!tab){
+    window.location.href = "https://www.youtube.com/@BkooSjkj";
+  }
+}
+
+function checkReturn(){
+  if(document.visibilityState !== "visible") return;
+
+  let clicked = false;
+  try {
+    clicked = sessionStorage.getItem("nhi_youtube_clicked") === "yes";
+  } catch(e) {}
+
+  if(!clicked) return;
+
+  document.getElementById("youtubeBtn").style.display = "none";
+  document.getElementById("accessArea").style.display = "block";
+
+  try {
+    sessionStorage.removeItem("nhi_youtube_clicked");
+  } catch(e) {}
+}
+
+document.addEventListener("visibilitychange",checkReturn);
+window.addEventListener("pageshow",checkReturn);
+window.addEventListener("focus",checkReturn);
+
+function generateKey(){
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  currentKey = "";
+
+  for(let i=0;i<11;i++){
+    currentKey += chars.charAt(Math.floor(Math.random()*chars.length));
+  }
+
+  document.getElementById("keyDisplay").textContent = currentKey;
+  document.getElementById("keyDisplay").style.display = "block";
+  document.getElementById("keyInput").value = "";
+  document.getElementById("message").textContent = "";
+}
+
+function confirmKey(){
+  const input = document.getElementById("keyInput").value.trim().toUpperCase();
+  const message = document.getElementById("message");
+
+  if(!currentKey){
+    message.textContent = "VUI LÒNG NHẬN KEY TRƯỚC!";
+    return;
+  }
+
+  if(input === currentKey){
+    document.getElementById("lockScreen").style.display = "none";
+    document.getElementById("website").style.display = "block";
+  }else{
+    message.textContent = "KEY KHÔNG ĐÚNG! VUI LÒNG THỬ LẠI.";
+  }
+}
+
+function showPage(id,button){
+  document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+
+  document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active"));
+
+  if(button) button.classList.add("active");
+}
+</script>
+
+</body>
+</html>
